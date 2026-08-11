@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+venv/
+env/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Editor / OS
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+*:Zone.Identifier
+*.Zone.Identifier
+
+# Project runtime data (never commit)
+export/
+.step-work/
+.step-config/
+
+# STEP files and CAD data (large; use your own locally)
+*.stp
+*.step
+*.STP
+*.STEP
+
+# Allow tiny synthetic test fixtures only
+!tests/fixtures/
+!tests/**/*.stp
+!tests/**/*.step
+
+# Local working data
+*.csv
+*.zip
+
+# Logs and temp
+*.log
+*.tmp
+.cache/
