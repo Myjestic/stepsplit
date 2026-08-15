@@ -7,16 +7,16 @@ import json
 import sys
 from pathlib import Path
 
-from . import VERSION, export as export_module, i18n as i18n_mod, model, scan, storage, tui, validate
-from . import menu as menu_module
+from . import VERSION, export as export_module, i18n as i18n_mod, model, scan, storage, validate
 from . import settings as settings_mod
+from .deps import ensure_curses
 from .util import format_bytes, log, safe_filename
 
 DEFAULT_CACHE = Path.home() / ".cache" / "stepsplit"
 
 
 def default_work_dir(source: Path) -> Path:
-    return menu_module.default_work_dir(source)
+    return settings_mod.resolve_work_dir(settings_mod.load_settings(), source)
 
 
 def resolve_source(path: Path) -> Path:
@@ -234,6 +234,9 @@ def command_export(args: argparse.Namespace) -> int:
 
 
 def command_browse(args: argparse.Namespace) -> int:
+    ensure_curses(prompt=True)
+    from . import tui
+
     source = resolve_source(args.source)
     work_dir = args.work_dir or default_work_dir(source)
     if args.auto_index:
@@ -415,9 +418,15 @@ def main(
             if default_source is None:
                 build_parser(default_source, default_output_dir).print_help()
                 return 1
+            ensure_curses(prompt=True)
+            from . import menu as menu_module
+
             return menu_module.run_menu(default_source, default_output_dir, default_work_dir)
 
         if argv and argv[0] == "menu":
+            ensure_curses(prompt=True)
+            from . import menu as menu_module
+
             source = default_source
             work_dir = default_work_dir
             rest = argv[1:]

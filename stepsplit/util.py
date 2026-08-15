@@ -52,8 +52,8 @@ class Progress:
     """Show scan/export progress.
 
     Call :meth:`update` as often as you like (even every record). Rendering is
-    throttled to about twice per second. When stderr is not a TTY — for example
-    under ``tail -f`` — each update is a full line so the log keeps moving.
+    throttled to about twice per second. When stderr is not a TTY (for example
+    under ``tail -f``), each update is a full line so the log keeps moving.
 
     Pass ``on_update`` to drive a UI (e.g. curses) instead of, or in addition to,
     the console. With only ``on_update`` set, console output is suppressed.
@@ -141,9 +141,16 @@ def open_readonly(path: Path):
 
 
 def guard_output_path(source: Path, output: Path, overwrite: bool) -> None:
+    """Refuse to overwrite the source STEP, including via hard links."""
     source = source.resolve()
     resolved = output.resolve()
     if resolved == source:
         raise SystemExit("Refusing to write onto the source STEP file.")
+    try:
+        if resolved.exists() and os.path.samefile(source, resolved):
+            raise SystemExit("Refusing to write onto the source STEP file.")
+    except OSError:
+        # samefile can fail on some network mounts; path equality above still applies.
+        pass
     if resolved.exists() and not overwrite:
         raise SystemExit(f"{resolved} already exists. Pass --overwrite to replace it.")

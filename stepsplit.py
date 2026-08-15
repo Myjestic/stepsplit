@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Split large STEP assemblies into separate files — no CAD, no full load into RAM.
+"""Split large STEP assemblies into separate files without loading them into CAD.
 
 Without arguments, opens the interactive menu:
 
@@ -25,12 +25,16 @@ DEFAULT_WORK_DIR: Path | None = None  # None → ~/.cache/stepsplit/...
 if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 
-from stepsplit.cli import main  # noqa: E402
-from stepsplit.menu import default_work_dir  # noqa: E402
-
 
 if __name__ == "__main__":
+    from stepsplit.deps import ensure_curses, needs_curses  # noqa: E402
+
     argv = sys.argv[1:]
+    if needs_curses(argv):
+        ensure_curses(prompt=True)
+
+    from stepsplit.cli import default_work_dir, main  # noqa: E402
+
     work = DEFAULT_WORK_DIR
     if work is None and DEFAULT_SOURCE.exists():
         work = default_work_dir(DEFAULT_SOURCE)

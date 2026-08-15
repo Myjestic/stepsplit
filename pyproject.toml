@@ -19,5 +19,8 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 
+[project.optional-dependencies]
+windows = ["windows-curses"]
+
 [tool.setuptools.packages.find]
 include = ["stepsplit*"]
