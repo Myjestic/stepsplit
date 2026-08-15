@@ -13,7 +13,7 @@ def run_wizard(screen, settings: settings_mod.Settings) -> settings_mod.Settings
     """Ask for language, export dir, work dir and colors; persist the result."""
     tr = i18n_mod.get_i18n().t
 
-    # Language first — bilingual labels until chosen.
+    # Language first; bilingual labels until chosen.
     lang = ui.list_menu(
         screen,
         "StepSplit",
@@ -210,11 +210,11 @@ def edit_settings(screen, settings: settings_mod.Settings) -> settings_mod.Setti
                     f"language          = {settings.language}",
                     f"color             = {settings.color}",
                     f"export_mode       = {settings.export_mode}",
-                    f"export_dir        = {settings.export_dir or '—'}",
+                    f"export_dir        = {settings.export_dir or '-'}",
                     f"work_mode         = {settings.work_mode}",
-                    f"work_dir          = {settings.work_dir or '—'}",
+                    f"work_dir          = {settings.work_dir or '-'}",
                     f"numbered_exports  = {settings.numbered_exports}",
-                    f"last_source       = {settings.last_source or '—'}",
+                    f"last_source       = {settings.last_source or '-'}",
                     "",
                     f"{tr('wizard_saved_to')}: {settings_mod.settings_path()}",
                 ],

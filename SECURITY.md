@@ -8,16 +8,22 @@
 
 ## Reporting a vulnerability
 
-If you find a security issue (e.g. path traversal, unsafe file handling, or code execution via crafted STEP input), please **do not** open a public GitHub issue.
+If you find a security issue (path traversal, unsafe file handling, or similar),
+please do not open a public GitHub issue.
 
-Instead, contact the repository owner privately (GitHub security advisory or direct message) with:
+Contact the repository owner privately (GitHub security advisory or a direct
+message) and include:
 
-- Description of the issue
-- Steps to reproduce
-- Impact assessment (if known)
+- What the issue is
+- How to reproduce it
+- Impact, if you know it
 
-We will acknowledge reports within a reasonable time and coordinate a fix before any public disclosure.
+Reports are acknowledged when possible, and a fix can be coordinated before any
+public disclosure.
 
 ## Scope
 
-This tool reads local STEP files and writes export/index data to disk. It does not expose a network service. Typical risks are limited to local file system access when processing untrusted STEP files.
+StepSplit reads local STEP files and writes export/index data to disk. It does
+not expose a network service. Typical risks are limited to local filesystem
+access when processing untrusted STEP input. The source STEP file is opened
+read-only; exports refuse to overwrite the source (including hard links).

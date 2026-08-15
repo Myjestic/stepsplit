@@ -7,7 +7,7 @@ from typing import Any
 STRINGS: dict[str, dict[str, str]] = {
     "app_title": {"de": "StepSplit", "en": "StepSplit"},
     "nav_footer": {
-        "de": "↑↓ bewegen   Enter wählen   q zurück",
+        "de": "↑↓ bewegen   Enter auswählen   q zurück",
         "en": "↑↓ move   Enter select   q back",
     },
     "nav_footer_main": {
@@ -40,14 +40,14 @@ STRINGS: dict[str, dict[str, str]] = {
         "de": "STEP-Datei und Index-Ordner",
         "en": "STEP file and index folder",
     },
-    "menu_index": {"de": "Index einlesen", "en": "Build index"},
+    "menu_index": {"de": "Index erstellen", "en": "Build index"},
     "menu_index_hint": {
-        "de": "Struktur scannen / fortsetzen",
+        "de": "Struktur scannen oder fortsetzen",
         "en": "Scan structure / resume",
     },
     "menu_resume": {"de": "Index fortsetzen", "en": "Resume index"},
     "menu_resume_hint": {
-        "de": "unterbrochenen Aufbau fortsetzen",
+        "de": "Unterbrochenen Aufbau fortsetzen",
         "en": "continue the interrupted build",
     },
     "menu_browse": {"de": "Strukturbaum öffnen", "en": "Open structure tree"},
@@ -63,7 +63,7 @@ STRINGS: dict[str, dict[str, str]] = {
     },
     "menu_rebuild": {"de": "Index neu aufbauen", "en": "Rebuild index"},
     "menu_rebuild_hint": {
-        "de": "löscht den bisherigen Index",
+        "de": "Löscht den bisherigen Index",
         "en": "deletes the current index",
     },
     "menu_quit": {"de": "Beenden", "en": "Quit"},
@@ -73,12 +73,12 @@ STRINGS: dict[str, dict[str, str]] = {
     "label_work": {"de": "Index-Ordner", "en": "Index folder"},
     "label_export": {"de": "Export", "en": "Export"},
     "label_offsets": {"de": "Direktzugriff", "en": "Random access"},
-    "label_settings": {"de": "Config", "en": "Settings"},
+    "label_settings": {"de": "Einstellungen", "en": "Settings"},
     "label_yes": {"de": "ja", "en": "yes"},
     "label_no": {"de": "nein", "en": "no"},
     "confirm_ok": {"de": "Fortfahren?", "en": "Continue?"},
     "confirm_index": {
-        "de": "{name}  ({size})\n\nIndex jetzt einlesen?",
+        "de": "{name}  ({size})\n\nIndex jetzt erstellen?",
         "en": "{name}  ({size})\n\nBuild the index now?",
     },
     "confirm_rebuild": {
@@ -108,7 +108,7 @@ STRINGS: dict[str, dict[str, str]] = {
     "index_done_title": {"de": "Index", "en": "Index"},
     "index_done_ok": {"de": "fertig", "en": "ready"},
     "index_created": {
-        "de": "Index fertig erstellt",
+        "de": "Index erstellt",
         "en": "Index built successfully",
     },
     "index_done_fail": {"de": "fehlgeschlagen / unterbrochen", "en": "failed / interrupted"},
@@ -117,7 +117,7 @@ STRINGS: dict[str, dict[str, str]] = {
         "en": "Press a key → back to main menu",
     },
     "progress_footer": {
-        "de": "↑↓ / Mausrad scrollen   Ctrl+C unterbricht",
+        "de": "↑↓ / Mausrad scrollen   Ctrl+C abbrechen",
         "en": "↑↓ / mouse wheel scroll   Ctrl+C interrupts",
     },
     "progress_done_footer": {
@@ -125,7 +125,7 @@ STRINGS: dict[str, dict[str, str]] = {
         "en": "↑↓ scroll   Enter → back",
     },
     "scan_progress_label": {
-        "de": "Index wird gelesen",
+        "de": "Index wird erstellt",
         "en": "Reading index",
     },
     "scan_progress_detail": {
@@ -145,7 +145,7 @@ STRINGS: dict[str, dict[str, str]] = {
         "en": "Building export helper list",
     },
     "scan_enrich_detail": {
-        "de": "{count} Einträge · {scanned} Records",
+        "de": "{count} Einträge · {scanned} Datensätze",
         "en": "{count} entries · {scanned} records",
     },
     "scan_enrich_finish": {
@@ -153,7 +153,7 @@ STRINGS: dict[str, dict[str, str]] = {
         "en": "{count} entries",
     },
     "index_missing": {
-        "de": "Noch kein Index. Zuerst „Index einlesen“ wählen.",
+        "de": "Noch kein Index. Zuerst „Index erstellen“ wählen.",
         "en": "No index yet. Choose “Build index” first.",
     },
     "index_ready": {"de": "fertig", "en": "ready"},
@@ -165,8 +165,8 @@ STRINGS: dict[str, dict[str, str]] = {
         "en": "does not match file",
     },
     "index_mismatch_detail": {
-        "de": "Index gehört zu einer anderen Quelldatei — neu einlesen.",
-        "en": "Index belongs to a different source file — rebuild it.",
+        "de": "Der Index gehört zu einer anderen Datei. Bitte neu erstellen.",
+        "en": "Index belongs to a different source file: rebuild it.",
     },
     "index_detail_ready": {
         "de": "{entities} Entitäten · {products} Bauteile · {usages} Baugruppen-Links",
@@ -177,39 +177,39 @@ STRINGS: dict[str, dict[str, str]] = {
         "en": " · build {build_id}",
     },
     "index_detail_no_offsets": {
-        "de": " — kein Direktzugriff-Index",
-        "en": " — no random-access index",
+        "de": " (kein Direktzugriff-Index)",
+        "en": " (no random-access index)",
     },
     "index_detail_no_candidates": {
-        "de": " — Zusatzliste für Export fehlt",
-        "en": " — export helper list missing",
+        "de": " (Zusatzliste für Export fehlt)",
+        "en": " (export helper list missing)",
     },
     "index_detail_progress": {
         "de": "{percent:.1f}% ({bytes})",
         "en": "{percent:.1f}% ({bytes})",
     },
     "index_candidates_hint": {
-        "de": "Zusatzliste für Export fehlt — ein weiterer Durchlauf kann sie erzeugen.",
-        "en": "Export helper list missing — one extra pass can build it.",
+        "de": "Export-Hilfsliste fehlt. Ein weiterer Durchlauf kann sie erzeugen.",
+        "en": "Export helper list missing: one extra pass can build it.",
     },
     "index_readonly_hint": {
-        "de": "Quelle bleibt unverändert. Fortschritt folgt. Ctrl+C unterbricht — später fortsetzbar.",
+        "de": "Die Quelldatei bleibt unverändert. Fortschritt wird angezeigt. Mit Ctrl+C abbrechen, später fortsetzen.",
         "en": "Read-only source. Progress follows. Ctrl+C resumes later.",
     },
     "status_section_check": {"de": "Prüfung", "en": "Checks"},
     "status_no_check": {
-        "de": "Keine Prüfung möglich — Index fehlt oder ist unvollständig.",
-        "en": "No check possible — index missing or incomplete.",
+        "de": "Keine Prüfung möglich: Index fehlt oder ist unvollständig.",
+        "en": "No check possible: index missing or incomplete.",
     },
     "sev_ok": {"de": "OK", "en": "OK"},
     "sev_warn": {"de": "WARN", "en": "WARN"},
     "sev_fail": {"de": "FEHLER", "en": "FAIL"},
     "val_result_ok": {
-        "de": "Ergebnis: nutzbar für Export",
+        "de": "Ergebnis: für den Export geeignet",
         "en": "Result: usable for export",
     },
     "val_result_bad": {
-        "de": "Ergebnis: NICHT nutzbar für Export",
+        "de": "Ergebnis: NICHT für den Export geeignet",
         "en": "Result: NOT usable for export",
     },
     "val_no_products": {
@@ -229,19 +229,19 @@ STRINGS: dict[str, dict[str, str]] = {
         "en": "{n} product definitions indexed.",
     },
     "val_no_usages": {
-        "de": "Keine Baugruppen-Verknüpfungen indexiert. Unbekannter Usage-Typ — vor Export Parser anpassen.",
-        "en": "No assembly usages were indexed. Unrecognised usage entity — adapt the parser before export.",
+        "de": "Keine Baugruppen-Verknüpfungen gefunden. Möglicherweise ein nicht unterstützter Usage-Typ. Vor dem Export den Parser anpassen.",
+        "en": "No assembly usages were indexed. Unrecognised usage entity: adapt the parser before export.",
     },
     "val_n_usages": {
         "de": "{n} Baugruppen-Verknüpfungen indexiert.",
         "en": "{n} assembly usages indexed.",
     },
     "val_fallback_usages": {
-        "de": "{n} Verknüpfungen aus nachgestellten Referenzen gelesen statt positional — Stichprobe prüfen.",
-        "en": "{n} usages parsed from trailing references instead of positional args — verify a sample.",
+        "de": "{n} Verknüpfungen wurden aus nachgestellten Referenzen gelesen (nicht aus Positionsargumenten). Bitte Stichprobe prüfen.",
+        "en": "{n} usages parsed from trailing references instead of positional args: verify a sample.",
     },
     "val_dangling_usages": {
-        "de": "{parents} Verknüpfungen zeigen auf unbekannten Parent, {children} auf unbekanntes Child.",
+        "de": "{parents} Verknüpfungen zeigen auf ein unbekanntes Elternteil, {children} auf ein unbekanntes Kind.",
         "en": "{parents} usages point to an unknown parent and {children} to an unknown child.",
     },
     "val_usages_ok": {
@@ -257,15 +257,15 @@ STRINGS: dict[str, dict[str, str]] = {
         "en": "Every product definition resolves to a product name.",
     },
     "val_without_shape": {
-        "de": "{n} Produktdefinitionen ohne PRODUCT_DEFINITION_SHAPE — Struktur ohne Geometrie.",
-        "en": "{n} product definitions have no PRODUCT_DEFINITION_SHAPE — structure without geometry.",
+        "de": "{n} Produktdefinitionen ohne PRODUCT_DEFINITION_SHAPE. Struktur ohne Geometrie.",
+        "en": "{n} product definitions have no PRODUCT_DEFINITION_SHAPE: structure without geometry.",
     },
     "val_shapes_ok": {
-        "de": "Jede Produktdefinition hat eine Shape.",
+        "de": "Jede Produktdefinition hat verknüpfte Geometrie.",
         "en": "Every product definition has a shape.",
     },
     "val_no_roots": {
-        "de": "Keine Wurzel-Produktdefinition — Graph ist zyklisch.",
+        "de": "Keine Wurzel-Produktdefinition gefunden. Der Baugruppen-Graph ist vermutlich zyklisch.",
         "en": "No root product definition; the assembly graph is cyclic.",
     },
     "val_roots": {
@@ -277,7 +277,7 @@ STRINGS: dict[str, dict[str, str]] = {
         "en": "Cycle check skipped: {n} usages exceed the {limit} edge budget.",
     },
     "val_cycles": {
-        "de": "{n} Produktdefinition(en) liegen auf einem Zyklus: {preview}",
+        "de": "Zyklus gefunden: {n} Produktdefinition(en) betroffen ({preview})",
         "en": "{n} product definition(s) sit on a cycle: {preview}",
     },
     "val_acyclic": {
@@ -285,12 +285,12 @@ STRINGS: dict[str, dict[str, str]] = {
         "en": "The assembly graph is acyclic.",
     },
     "val_ambiguous_names": {
-        "de": "{n} Produktnamen gehören zu mehr als einer Definition — per „#id“ auswählen.",
+        "de": "{n} Produktnamen gehören zu mehr als einer Definition. Bitte mit „#id“ auswählen.",
         "en": "{n} product names map to more than one product definition; select by '#id'.",
     },
     "err_no_usages_export": {
-        "de": "Keine Baugruppen-Verknüpfungen — Export unsicher.",
-        "en": "No assembly usages — export unsafe.",
+        "de": "Keine Baugruppen-Verknüpfungen gefunden. Export ist nicht möglich.",
+        "en": "No assembly usages: export unsafe.",
     },
     "err_no_roots": {
         "de": "Keine Wurzelknoten.",
@@ -299,8 +299,8 @@ STRINGS: dict[str, dict[str, str]] = {
     "aborted": {"de": "Abgebrochen.", "en": "Aborted."},
     "ok_short": {"de": "OK", "en": "OK"},
     "wizard_welcome": {
-        "de": "Willkommen — Ersteinrichtung",
-        "en": "Welcome — first-time setup",
+        "de": "Willkommen zur Ersteinrichtung",
+        "en": "Welcome to first-time setup",
     },
     "wizard_intro": {
         "de": "Ein paar Einstellungen, dann geht’s los. Alles lässt sich später ändern.",
@@ -328,8 +328,8 @@ STRINGS: dict[str, dict[str, str]] = {
     },
     "wizard_work": {"de": "Index-Arbeitsordner", "en": "Index work folder"},
     "wizard_work_cache": {
-        "de": "Schnell-Cache (~/.cache) — empfohlen",
-        "en": "Fast cache (~/.cache) — recommended",
+        "de": "Cache unter ~/.cache (empfohlen)",
+        "en": "Fast cache (~/.cache), recommended",
     },
     "wizard_work_beside": {
         "de": "Neben der Quelldatei (.step-work)",
@@ -347,7 +347,7 @@ STRINGS: dict[str, dict[str, str]] = {
     "wizard_color_on": {"de": "Farbe an", "en": "Color on"},
     "wizard_color_off": {"de": "Ohne Farbe", "en": "No color"},
     "wizard_done": {
-        "de": "Einstellungen gespeichert. Viel Erfolg!",
+        "de": "Einstellungen gespeichert. Los geht's!",
         "en": "Settings saved. You’re good to go!",
     },
     "wizard_saved_to": {"de": "Gespeichert unter", "en": "Saved to"},
@@ -388,7 +388,7 @@ STRINGS: dict[str, dict[str, str]] = {
     "cancelled": {"de": "Abgebrochen.", "en": "Cancelled."},
     "error": {"de": "Fehler", "en": "Error"},
     "need_index": {
-        "de": "Bitte zuerst „Index einlesen“.",
+        "de": "Bitte zuerst „Index erstellen“.",
         "en": "Please build the index first.",
     },
     "press_enter": {
@@ -401,7 +401,7 @@ STRINGS: dict[str, dict[str, str]] = {
     },
     "tree_header": {"de": "Strukturbaum", "en": "Structure tree"},
     "tree_footer": {
-        "de": "←→ auf/zuklappen  Leertaste=markieren  i=Info  e=export  /=suchen  h=Hilfe  q=zurück",
+        "de": "←→ auf-/zuklappen  Leertaste=markieren  i=Info  e=exportieren  /=suchen  h=Hilfe  q=zurück",
         "en": "←→ expand/collapse  space=mark  i=info  e=export  /=search  h=help  q=back",
     },
     "tree_help_title": {"de": "Tastaturhilfe", "en": "Keyboard help"},
@@ -413,7 +413,7 @@ STRINGS: dict[str, dict[str, str]] = {
         "en": "File / root: {name}",
     },
     "tree_info_roots": {
-        "de": "Root-Produktdefinitionen: {n}",
+        "de": "Wurzel-Produktdefinitionen: {n}",
         "en": "Root product definitions: {n}",
     },
     "tree_info_name": {"de": "Name: {value}", "en": "Name: {value}"},
@@ -439,7 +439,7 @@ STRINGS: dict[str, dict[str, str]] = {
         "en": "Geometry linked: {value}  (SHAPE links: {links})",
     },
     "tree_info_body": {
-        "de": "Anzeige-Knoten: Körper / Solid (kein eigenes PRODUCT)",
+        "de": "Anzeige-Knoten: Körper/Solid (kein eigenes PRODUCT)",
         "en": "Display node: body / solid (not a separate PRODUCT)",
     },
     "tree_info_cycle": {
@@ -479,14 +479,14 @@ STRINGS: dict[str, dict[str, str]] = {
         "en": "selection cleared",
     },
     "tree_status_export_empty": {
-        "de": "nichts markiert — zuerst Leertaste",
-        "en": "nothing marked — press space first",
+        "de": "Nichts markiert. Zuerst mit Leertaste auswählen.",
+        "en": "nothing marked (press space first)",
     },
     "tree_status_done": {"de": "Export beendet", "en": "export finished"},
     "export_progress_title": {"de": "Export", "en": "Export"},
     "export_step_prepare": {"de": "Vorbereitung", "en": "Preparing"},
     "export_step_closure": {"de": "Abhängigkeiten sammeln", "en": "Collecting dependencies"},
-    "export_step_backward": {"de": "Zusatz-Entitäten", "en": "Adding references"},
+    "export_step_backward": {"de": "Zusatzreferenzen", "en": "Adding references"},
     "export_backward_detail": {
         "de": "Durchlauf {pass_n}/{passes}: {checked}/{total} · +{added}",
         "en": "Pass {pass_n}/{passes}: {checked}/{total} · +{added}",
@@ -520,9 +520,9 @@ STRINGS: dict[str, dict[str, str]] = {
             "Aufklappen      →  oder  Enter\n"
             "Zuklappen       ←\n"
             "Unterbaum       a  (begrenzt)\n"
-            "Alles zukl.     c\n"
+            "Alles zuklappen c\n"
             "Markieren       Leertaste\n"
-            "Auswahl weg     x\n"
+            "Markierung weg  x\n"
             "Knoten-Info     i\n"
             "Suchen          /   dann n = nächster Treffer\n"
             "Exportieren     e   (markierte Knoten inkl. Unterbaum)\n"

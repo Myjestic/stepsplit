@@ -4,7 +4,8 @@
 python3 stepsplit.py <command> [options] [source.stp]
 ```
 
-If `source` is omitted, the default path from `stepsplit.py` is used (when that file exists on your machine).
+If `source` is omitted, the default path from `stepsplit.py` is used when that
+file exists on your machine.
 
 ## Global concepts
 
@@ -16,7 +17,9 @@ If `source` is omitted, the default path from `stepsplit.py` is used (when that 
 
 ## Commands
 
-### `index` — build the disk-backed index
+### `index`
+
+Build the disk-backed index.
 
 ```bash
 python3 stepsplit.py index assembly.stp
@@ -30,31 +33,40 @@ python3 stepsplit.py index assembly.stp --structure-only
 | `--no-resume` | Do not continue a partial index |
 | `--structure-only` | Skip byte-offset index (smaller; export needs extra passes) |
 
-Progress is printed to stderr. Safe to interrupt with Ctrl+C.
+Progress goes to stderr. Safe to interrupt with Ctrl+C.
 
-### `enrich` — build backward-candidate lists
+### `enrich`
+
+Build backward-candidate lists.
 
 ```bash
 python3 stepsplit.py enrich assembly.stp
 python3 stepsplit.py enrich assembly.stp --force
 ```
 
-Speeds up export for assemblies where geometry is linked via backward references. Run once per index if export warns about missing enrichment.
+Speeds up export when geometry is linked via backward references. Run once per
+index if export warns that enrichment is missing.
 
-### `inspect` — index statistics (JSON)
+### `inspect`
+
+Print index statistics as JSON.
 
 ```bash
 python3 stepsplit.py inspect assembly.stp
 ```
 
-### `validate` — check indexed relationships
+### `validate`
+
+Check indexed relationships.
 
 ```bash
 python3 stepsplit.py validate assembly.stp
 python3 stepsplit.py validate assembly.stp --samples 3
 ```
 
-### `tree` — print assembly tree
+### `tree`
+
+Print the assembly tree.
 
 ```bash
 python3 stepsplit.py tree assembly.stp
@@ -65,15 +77,19 @@ python3 stepsplit.py tree assembly.stp --select 'PartName' --select '#12345'
 
 Selection accepts product name, `#entity_id`, or `pd:product_definition_id`.
 
-### `browse` — interactive curses tree
+### `browse`
+
+Interactive structure tree.
 
 ```bash
 python3 stepsplit.py browse assembly.stp --output-dir ./export
 ```
 
-Builds index automatically if missing (`--no-auto-index` to disable).
+Builds an index automatically if missing (`--no-auto-index` to disable).
 
-### `export` — batch export subtrees
+### `export`
+
+Batch-export subtrees.
 
 ```bash
 python3 stepsplit.py export assembly.stp \
@@ -81,8 +97,6 @@ python3 stepsplit.py export assembly.stp \
   --select '#164675648' \
   --output-dir ./export
 ```
-
-Common export flags:
 
 | Flag | Description |
 |------|-------------|
@@ -93,13 +107,15 @@ Common export flags:
 | `--backward-iterations N` | Depth of backward geometry pass (default: 3) |
 | `--skip-check` | Skip post-export STEP validation |
 
-### `check` — verify exported STEP references
+### `check`
+
+Verify that an exported STEP has no missing references.
 
 ```bash
 python3 stepsplit.py check ./export/Part.step
 ```
 
-### `menu` — interactive menu
+### `menu`
 
 ```bash
 python3 stepsplit.py menu

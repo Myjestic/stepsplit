@@ -1,4 +1,4 @@
-"""StepSplit — disk-backed splitter for very large STEP assemblies."""
+"""StepSplit: disk-backed splitter for very large STEP assemblies."""
 
 VERSION = "0.2.0"
 

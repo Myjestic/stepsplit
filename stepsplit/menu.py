@@ -30,7 +30,7 @@ def run_tree_export(
     cancel = threading.Event()
 
     def work(on_progress) -> tuple[bool, str]:
-        # Open a fresh DB connection in this worker thread — SQLite connections
+        # Open a fresh DB connection in this worker thread. SQLite connections
         # must not cross threads (the tree browser keeps one on the UI thread).
         export_connection = storage.connect_readonly(work_dir)
         try:
@@ -394,7 +394,7 @@ def _main_items(session: Session) -> list[ui.MenuItem]:
     status = (
         index_status(session.source, session.work_dir, session.settings.language)
         if session.source.is_file()
-        else {"ready": False, "resumable": False, "state": "—"}
+        else {"ready": False, "resumable": False, "state": "-"}
     )
     ready = bool(status.get("ready"))
     resumable = bool(status.get("resumable"))
@@ -429,7 +429,7 @@ def _index_value_color(status: dict) -> int:
     tr = i18n_mod.get_i18n().t
     if state in {tr("index_broken"), tr("index_bad"), tr("index_mismatch")}:
         return ui.C_WARN
-    if state in {tr("index_missing_short"), "—"}:
+    if state in {tr("index_missing_short"), "-"}:
         return ui.C_ACCENT
     return ui.C_MUTED
 
@@ -437,11 +437,11 @@ def _index_value_color(status: dict) -> int:
 def _header_panel(session: Session) -> ui.HeaderPanel:
     tr = i18n_mod.get_i18n().t
     exists = session.source.is_file()
-    size = format_bytes(session.source.stat().st_size) if exists else "—"
+    size = format_bytes(session.source.stat().st_size) if exists else "-"
     status = (
         index_status(session.source, session.work_dir, session.settings.language)
         if exists
-        else {"state": "—", "detail": tr("source_missing"), "ready": False}
+        else {"state": "-", "detail": tr("source_missing"), "ready": False}
     )
     source_name = session.source.name if exists else str(session.source)
 

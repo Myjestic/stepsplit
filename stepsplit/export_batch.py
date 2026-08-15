@@ -63,7 +63,7 @@ def write_export_index_note(
         return
     meta = storage.read_meta(connection)
     lines = [
-        "StepSplit — export folder for one index build",
+        "StepSplit export folder for one index build",
         "",
         f"Source file:     {source}",
         f"Index build id:  {meta.get('index_build_id') or index_export_id(connection)}",
@@ -133,7 +133,7 @@ def output_path_for(
 
 @dataclass
 class NodeProgress:
-    """Maps per-node phases onto one 0–1 fraction for a single export."""
+    """Maps per-node phases onto one 0-1 fraction for a single export."""
 
     reporter: Callable[[ProgressState], None] | None
     node_name: str
@@ -154,7 +154,7 @@ class NodeProgress:
     def _emit(self, step: str, fraction: float, detail: str = "") -> None:
         if self.reporter is None:
             return
-        # Percent is local to this node (0–100), so parallel exports can
+        # Percent is local to this node (0-100), so parallel exports can
         # each keep their own bar without overwriting each other.
         node_frac = self._phase_base(step) + fraction * self._phase_weight(step)
         self.reporter(
@@ -421,7 +421,7 @@ def export_nodes(
             cancel.set()
             for future in future_map:
                 future.cancel()
-            # Do not wait for long-running workers — they exit via cancel_check.
+            # Do not wait for long-running workers; they exit via cancel_check.
             pool.shutdown(wait=False, cancel_futures=True)
 
     if cancelled:

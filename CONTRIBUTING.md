@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for improving StepSplit.
+Thanks for helping with StepSplit.
 
 ## Development setup
 
@@ -10,18 +10,21 @@ cd stepsplit
 python3 -m unittest discover -s tests -t .
 ```
 
-No pip dependencies. Python 3.10+ required.
+On Linux, macOS, and WSL there are no pip dependencies. On Windows the
+interactive UI needs `windows-curses` (optional; first run can install it).
+Python 3.10+ is required.
 
 ## Before you commit
 
-**Do not commit STEP files.** The repo gitignores `*.stp` and `*.step` except synthetic fixtures under `tests/`. Always check:
+Do not commit STEP files. The repo ignores `*.stp` and `*.step` except synthetic
+fixtures under `tests/`. Check before committing:
 
 ```bash
 git status
 git ls-files | grep -iE '\.(stp|step)$'
 ```
 
-If any real assembly file appears, unstage it before committing.
+If a real assembly shows up, unstage it.
 
 ## Running tests
 
@@ -29,21 +32,23 @@ If any real assembly file appears, unstage it before committing.
 python3 -m unittest discover -s tests -t . -v
 ```
 
-TUI tests require a PTY and are skipped automatically in environments without one (e.g. some CI sandboxes). GitHub Actions Ubuntu runners run them successfully.
+TUI tests need a PTY and skip automatically when none is available. GitHub
+Actions Ubuntu runners usually have one.
 
 ## Code style
 
-- Match existing module layout under `stepsplit/`
-- Keep changes focused; avoid unrelated refactors
+- Follow the layout under `stepsplit/`
+- Keep changes focused
 - UI strings go through `stepsplit/i18n.py` (English and German)
 - Docs in English under `docs/`
 
 ## Pull requests
 
-1. Describe the problem and solution
-2. Note how you tested (command + sample file type/size if relevant — do not attach customer STEP files)
-3. Ensure tests pass
+1. Describe the problem and the fix
+2. Note how you tested (command and sample file type/size if useful; do not
+   attach customer STEP files)
+3. Make sure tests pass
 
 ## Reporting issues
 
-Use GitHub issues. For security concerns, see [SECURITY.md](../SECURITY.md).
+Use GitHub issues. For security reports see [SECURITY.md](SECURITY.md).

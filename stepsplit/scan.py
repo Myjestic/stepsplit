@@ -503,7 +503,7 @@ def enrich_candidates(
             if is_backward_candidate(record):
                 candidates.add(entity_id)
                 count += 1
-            # Update by time/bytes, not by candidate milestones — otherwise the
+            # Update by time/bytes, not by candidate milestones, otherwise the
             # bar freezes while scanning geometry-heavy regions.
             progress.update(
                 offset,

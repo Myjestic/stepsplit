@@ -21,7 +21,7 @@ class Node:
     child_count: int = 0
     cycle: bool = False
     # Kisters / CAD viewers show a leaf part's solid as a same-named child node.
-    # That child is not a separate PRODUCT_DEFINITION — it is display-only.
+    # That child is not a separate PRODUCT_DEFINITION; it is display-only.
     is_body: bool = False
     path: tuple[int, ...] = field(default_factory=tuple)
     # Folder segments from assembly root to parent (for hierarchical export).

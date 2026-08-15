@@ -40,7 +40,6 @@ class Theme:
             curses.use_default_colors()
         except curses.error:
             pass
-        # Warm industrial palette — teal headers, amber selection, no purple.
         curses.init_pair(C_HEADER, curses.COLOR_BLACK, curses.COLOR_CYAN)
         curses.init_pair(C_FOOTER, curses.COLOR_BLACK, curses.COLOR_CYAN)
         curses.init_pair(C_SELECT, curses.COLOR_BLACK, curses.COLOR_YELLOW)
@@ -736,7 +735,7 @@ def run_export_progress(
 
         if scroll > 0 or scroll + visible < len(slots):
             row(
-                f"↑↓  {scroll + 1}–{scroll + len(visible_slots)} / {len(slots)}",
+                f"↑↓  {scroll + 1}-{scroll + len(visible_slots)} / {len(slots)}",
                 THEME.attr(C_MUTED),
             )
 
@@ -770,7 +769,7 @@ def run_export_progress(
             result_holder["ok"] = False
             result_holder["headline"] = tr("export_done_cancel")
             result_holder["cancelled"] = True
-        except Exception as error:  # noqa: BLE001 — keep the menu alive
+        except Exception as error:  # noqa: BLE001 - keep the menu alive
             result_holder["ok"] = False
             result_holder["headline"] = str(error)
             result_holder["error"] = True
@@ -891,5 +890,5 @@ def run(app: Callable) -> int:
     try:
         return curses.wrapper(app)
     except KeyboardInterrupt:
-        # Ctrl+C from any menu screen — exit quietly (curses already restored).
+        # Ctrl+C from any menu screen: exit quietly (curses already restored).
         return 130

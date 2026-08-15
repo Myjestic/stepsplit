@@ -216,7 +216,7 @@ class Browser:
         elif self.cursor >= self.top + body:
             self.top = self.cursor - body + 1
 
-        header = f" {self.i18n.t('tree_header')} — {self.subtitle}"
+        header = f" {self.i18n.t('tree_header')} - {self.subtitle}"
         ui.safe_add(screen, 0, 0, header, width - 1, ui.THEME.attr(ui.C_HEADER, curses.A_BOLD))
 
         for row in range(body):
@@ -398,9 +398,9 @@ class Browser:
         lines = [
             self.i18n.t("tree_info_name", value=info["name"]),
             self.i18n.t("tree_info_pd", value=info["pd_id"]),
-            self.i18n.t("tree_info_product", value=info["product_id"] or "—"),
-            self.i18n.t("tree_info_ident", value=info["ident"] or "—"),
-            self.i18n.t("tree_info_formation", value=info["formation_id"] or "—"),
+            self.i18n.t("tree_info_product", value=info["product_id"] or "-"),
+            self.i18n.t("tree_info_ident", value=info["ident"] or "-"),
+            self.i18n.t("tree_info_formation", value=info["formation_id"] or "-"),
             self.i18n.t(
                 "tree_info_children",
                 value=item.child_count,
@@ -430,10 +430,10 @@ class Browser:
                         "tree_info_usage_parent",
                         value=f"{parent_name}  (PD #{usage['parent_pd']})",
                     ),
-                    self.i18n.t("tree_info_usage_type", value=usage["usage_type"] or "—"),
+                    self.i18n.t("tree_info_usage_type", value=usage["usage_type"] or "-"),
                     self.i18n.t(
                         "tree_info_designator",
-                        value=usage["designator"] or "—",
+                        value=usage["designator"] or "-",
                     ),
                 ]
             )
@@ -452,7 +452,7 @@ class Browser:
         if not self.search_hits:
             self.status = f"no product matches {term!r}"
             return
-        self.status = f"{len(self.search_hits)} match(es) for {term!r} — n for next"
+        self.status = f"{len(self.search_hits)} match(es) for {term!r} (n for next)"
         self._next_hit()
 
     def _next_hit(self) -> None:

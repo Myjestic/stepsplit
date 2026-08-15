@@ -1,46 +1,50 @@
 # StepSplit
 
-**Split multi-gigabyte STEP assemblies into smaller files — without opening them in CAD first.**
+Split large STEP assemblies into smaller files without opening them in CAD.
 
-Very large STEP files (for example 13 GB with thousands of parts) overwhelm many workstations and lightweight CAD tools such as Autodesk Fusion 360. Importing the whole model loads geometry into RAM and triggers rendering — the process often fails or becomes unusably slow.
+Multi-gigabyte STEP files (for example a 13 GB truck with thousands of parts)
+often overwhelm workstations and lighter tools such as Autodesk Fusion 360.
+Loading the whole model into RAM and rendering it can fail or become unusable.
 
-The usual workaround is to open the assembly in a full CAD system and export parts one by one. That repeats the same memory and rendering problem for every export.
+Exporting part by part from a full CAD system usually hits the same wall.
 
-**StepSplit** takes a different approach: it scans the clear-text STEP file sequentially, stores entity locations on disk, and keeps the assembly structure in a compact SQLite database. You browse the tree, pick the objects you need, and export each one as its own STEP file — with B-Rep geometry intact, but without ever loading the full model into memory or rendering it.
-
-Inspired by a **structure-first workflow** like Kisters 3DViewStation: understand the hierarchy first, then export only what you need.
+StepSplit reads the STEP text sequentially, keeps entity locations on disk,
+and stores the assembly structure in SQLite. You browse the tree, pick what
+you need, and export each selection as its own STEP file with B-Rep geometry
+intact. The full model never has to sit in memory.
 
 | | |
 |---|---|
-| **Runtime** | Python 3.10+ (stdlib only — no pip install) |
-| **UI** | Terminal menu + curses tree browser (**English / German**) |
+| **Runtime** | Python 3.10+ (standard library). On Windows the menu needs `windows-curses` (first run can install it) |
+| **UI** | Terminal menu and structure tree (English / German) |
 | **Formats** | STEP AP214 / AP242 (`.stp`, `.step`) |
-| **Typical use** | Automotive assemblies, Creo / Solid Edge exports, Fusion 360 prep |
+| **Typical use** | Large assemblies from Creo, Solid Edge, and similar; prep for Fusion 360 |
 
-## The problem StepSplit solves
+## Why it helps
 
-| Typical CAD workflow | With StepSplit |
-|---------------------|----------------|
-| Open entire 13 GB file in CAD | Stream-read structure only; geometry stays on disk |
-| High RAM use + GPU rendering | No rendering, bounded memory |
-| Export one part at a time inside CAD | Mark many nodes, batch-export from the tree |
-| Restart from scratch after a crash | Index and export **resume** where you stopped |
-| Re-index after every restart | Indexed files stay in **SQLite cache** |
+| Usual CAD approach | With StepSplit |
+|--------------------|----------------|
+| Open the entire file in CAD | Read structure only; geometry stays on disk |
+| High RAM and GPU load | No rendering |
+| Export one part at a time inside CAD | Mark several nodes and batch-export |
+| Crash means start over | Index and export can resume |
+| Re-index every session | Cache is reused when name and size match |
 
-Import the exported smaller STEP files into Fusion 360 or other tools **one at a time** — much more reliable than importing the full assembly.
+Import the smaller exported files into Fusion 360 (or another tool) one at a
+time. That is usually more reliable than importing the original assembly.
 
 ## Features
 
-- **Structure-first indexing** — read the full assembly hierarchy without loading all geometry into RAM
-- **Persistent SQLite cache** — once indexed, reopen the same file instantly on the next run (matched by filename and size)
-- **Interrupt and resume** — stop indexing or export with Ctrl+C and continue later
-- **Live progress** — byte progress, entity counts, and ETA while indexing; per-object status while exporting
-- **Bilingual UI** — menu and tree browser in **English and German** (switch in settings)
-- **Collapsible structure tree** — search, fold/unfold, node info (`i`), multi-select with Space
-- **Batch export** — scrollable progress view during multi-object export
-- **Hierarchical export paths** — `{export}/{source}/{index-build}/{assembly path}/{name}.step`
-- **Backward geometry pass** — includes solids linked only via `SHAPE_REPRESENTATION_RELATIONSHIP`
-- **CLI** — index, validate, tree dump, batch export, and scripting
+- Index the assembly structure without loading all geometry into RAM
+- Keep a SQLite cache keyed by filename and size
+- Interrupt indexing or export with Ctrl+C and continue later
+- Progress while indexing (bytes, entity count, ETA) and while exporting
+- Menu and tree in English or German
+- Collapsible tree with search, node info (`i`), and multi-select (Space)
+- Batch export with a scrollable progress view
+- Export paths: `{export}/{source}/{index-build}/{assembly path}/{name}.step`
+- Backward geometry pass for solids linked only via `SHAPE_REPRESENTATION_RELATIONSHIP`
+- CLI for indexing, validation, tree dump, and scripted export
 
 ## Quick start
 
@@ -50,9 +54,18 @@ cd stepsplit
 python3 stepsplit.py
 ```
 
-1. Choose your **STEP source file** (`.stp` / `.step`) — not included in the repo
-2. **Build index** (progress bar; safe to interrupt and resume)
-3. Open **structure tree**, mark nodes with **Space**, export with **e**
+On Windows, the first menu start may ask to install `windows-curses`. Answer `Y`,
+or install it yourself:
+
+```bat
+python -m pip install windows-curses
+```
+
+CLI-only commands (`index`, `tree`, `export`, `check`) work without that package.
+
+1. Choose your STEP source file (`.stp` / `.step`). None are shipped in the repo.
+2. Build the index (progress bar; safe to interrupt and resume).
+3. Open the structure tree, mark nodes with Space, export with `e`.
 
 Settings: `~/.config/stepsplit/settings.json`  
 Index cache: `~/.cache/stepsplit/<filename>-<size>/`
@@ -61,9 +74,9 @@ Index cache: `~/.cache/stepsplit/<filename>-<size>/`
 
 | Document | Description |
 |----------|-------------|
-| [Install](docs/INSTALL.md) | Requirements, WSL/Linux, first run |
-| [User guide](docs/USAGE.md) | Menu, tree browser, export behaviour |
-| [CLI reference](docs/CLI.md) | All commands and flags |
+| [Install](docs/INSTALL.md) | Requirements, Windows, WSL/Linux |
+| [User guide](docs/USAGE.md) | Menu, tree browser, export layout |
+| [CLI reference](docs/CLI.md) | Commands and flags |
 
 ## Tests
 
@@ -85,9 +98,10 @@ docs/                 Install, usage, CLI
 ## What is not included
 
 - No tessellation, meshing, or CAD kernel
-- No modification of the source STEP file (read-only)
-- **No STEP files in the repository** — large assemblies, exports, and index caches are gitignored; add your own files locally
+- The source STEP file is read-only
+- No real STEP files in the repository (assemblies, exports, and caches are gitignored)
 
 ## License
 
-[MIT](LICENSE) — you may use, copy, modify, merge, publish, distribute, sublicense, and sell copies of this software. Include the copyright notice in copies. The software is provided **as is**, without warranty.
+[MIT](LICENSE). Use, copy, modify, and distribute freely; keep the copyright
+notice. The software is provided as is, without warranty.
