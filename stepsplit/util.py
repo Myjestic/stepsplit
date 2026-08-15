@@ -135,6 +135,20 @@ def safe_filename(name: str, fallback: str = "product") -> str:
     return cleaned[:120] or fallback
 
 
+def directory_size(path: Path) -> int:
+    """Sum file sizes under ``path`` (0 if missing)."""
+    if not path.is_dir():
+        return 0
+    total = 0
+    for root, _dirs, files in os.walk(path):
+        for name in files:
+            try:
+                total += (Path(root) / name).stat().st_size
+            except OSError:
+                continue
+    return total
+
+
 def open_readonly(path: Path):
     """Open the source strictly for reading; the source is never modified."""
     return os.fdopen(os.open(path, os.O_RDONLY), "rb")

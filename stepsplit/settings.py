@@ -121,3 +121,101 @@ def resolve_work_dir(settings: Settings, source: Path) -> Path:
         )
         local.mkdir(parents=True, exist_ok=True)
         return local
+
+
+def default_cache_root() -> Path:
+    return Path.home() / ".cache" / APP_DIR_NAME
+
+
+def resolve_cache_root(settings: Settings) -> Path:
+    """Root folder that holds per-assembly index caches for the current mode."""
+    if settings.work_mode == "custom" and settings.work_dir.strip():
+        return Path(settings.work_dir).expanduser()
+    if settings.work_mode == "beside_source":
+        # Beside-source indexes live next to each STEP file; the central cache
+        # under ~/.cache is still what this UI manages.
+        return default_cache_root()
+    return default_cache_root()
+
+
+@dataclass
+class CacheEntry:
+    path: Path
+    label: str
+    source: str
+    size_bytes: int
+    created_label: str
+    build_id: str
+
+
+def _format_build_id(build_id: str) -> str:
+    text = build_id.strip()
+    if len(text) >= 15 and text[8] == "-":
+        return (
+            f"{text[0:4]}-{text[4:6]}-{text[6:8]} "
+            f"{text[9:11]}:{text[11:13]}:{text[13:15]}"
+        )
+    return text
+
+
+def list_cache_entries(root: Path | None = None) -> list[CacheEntry]:
+    """List assembly index folders under the cache root."""
+    from . import storage
+    from .util import directory_size
+
+    root = root or default_cache_root()
+    if not root.is_dir():
+        return []
+
+    entries: list[CacheEntry] = []
+    for child in sorted(root.iterdir(), key=lambda path: path.name.lower()):
+        if not child.is_dir() or child.name == "unset":
+            continue
+        db = storage.structure_db_path(child)
+        try:
+            has_content = db.exists() or any(child.iterdir())
+        except OSError:
+            continue
+        if not has_content:
+            continue
+        source = ""
+        build_id = ""
+        if db.exists():
+            try:
+                connection = storage.connect_readonly(child)
+                meta = storage.read_meta(connection)
+                connection.close()
+                source = str(meta.get("source", "") or "")
+                build_id = str(meta.get("index_build_id", "") or "")
+            except Exception:  # noqa: BLE001
+                pass
+        label = Path(source).name if source else child.name
+        if build_id:
+            created = _format_build_id(build_id)
+        else:
+            try:
+                import time
+
+                created = time.strftime(
+                    "%Y-%m-%d %H:%M",
+                    time.localtime(child.stat().st_mtime),
+                )
+            except OSError:
+                created = "-"
+        entries.append(
+            CacheEntry(
+                path=child,
+                label=label,
+                source=source,
+                size_bytes=directory_size(child),
+                created_label=created,
+                build_id=build_id,
+            )
+        )
+    return entries
+
+
+def cache_total_size(root: Path | None = None) -> int:
+    from .util import directory_size
+
+    return directory_size(root or default_cache_root())

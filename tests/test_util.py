@@ -10,13 +10,23 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from stepsplit.util import guard_output_path, safe_filename  # noqa: E402
+from stepsplit.util import directory_size, guard_output_path, safe_filename  # noqa: E402
 
 
 class UtilTest(unittest.TestCase):
     def test_safe_filename_strips_path_separators(self) -> None:
         self.assertNotIn("/", safe_filename("a/b\\c"))
         self.assertNotIn("\\", safe_filename("a/b\\c"))
+
+    def test_directory_size_sums_nested_files(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "a.bin").write_bytes(b"12345")
+            nested = root / "sub"
+            nested.mkdir()
+            (nested / "b.bin").write_bytes(b"abcdef")
+            self.assertEqual(directory_size(root), 11)
+            self.assertEqual(directory_size(root / "missing"), 0)
 
     def test_guard_rejects_same_path(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

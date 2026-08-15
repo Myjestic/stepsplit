@@ -24,8 +24,10 @@ python3 stepsplit.py
 | 1 | Choose or change STEP source file (`.stp` / `.step` only) |
 | 2 | Build or resume index (Ctrl+C is safe; continues next time) |
 | 3 | Open structure tree browser |
-| 4 | Settings (language, export path, numbered exports, …) |
-| 5 | Quit |
+| 4 | Status / validate |
+| 5 | Manage cache (size per assembly, delete one or all) |
+| 6 | Settings (language, export path, numbered exports, …) |
+| 7 | Quit |
 
 ### First-time setup
 

@@ -54,6 +54,32 @@ class SettingsTest(unittest.TestCase):
                 loaded = settings_mod.load_settings()
                 self.assertEqual(loaded.language, "de")
 
+    def test_list_cache_entries_reads_meta_and_size(self) -> None:
+        from stepsplit import storage
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            entry = root / "truck-1000"
+            entry.mkdir()
+            connection = storage.connect(entry, create=True)
+            storage.write_meta(
+                connection,
+                {
+                    "source": "/data/truck.stp",
+                    "index_build_id": "20260815-113000",
+                    "scan_state": "complete",
+                },
+            )
+            connection.commit()
+            connection.close()
+            (entry / "blob.bin").write_bytes(b"1234567890")
+            listed = settings_mod.list_cache_entries(root)
+            self.assertEqual(len(listed), 1)
+            self.assertEqual(listed[0].label, "truck.stp")
+            self.assertEqual(listed[0].created_label, "2026-08-15 11:30:00")
+            self.assertGreaterEqual(listed[0].size_bytes, 10)
+            self.assertEqual(settings_mod.cache_total_size(root), listed[0].size_bytes)
+
 
 if __name__ == "__main__":
     unittest.main()

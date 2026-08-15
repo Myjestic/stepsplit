@@ -167,11 +167,12 @@ def index_status(source: Path, work_dir: Path, language: str) -> dict:
 
 def choose_source(screen, session: Session) -> None:
     tr = i18n_mod.get_i18n().t
+    initial = str(session.source) if session.source.is_file() else ""
     path_text = ui.prompt_text(
         screen,
         tr("source_title"),
         tr("source_prompt"),
-        str(session.source),
+        initial,
         path_complete=True,
         step_files_only=True,
     )
@@ -302,10 +303,6 @@ def run_browse(screen, session: Session) -> None:
             [f"{status['state']}", status["detail"], "", tr("need_index")],
         )
         return
-    if status["usages"] == 0:
-        ui.show_lines(screen, tr("error"), [tr("err_no_usages_export")])
-        return
-
     session.output_dir.mkdir(parents=True, exist_ok=True)
     try:
         connection = model.open_structure(source, work_dir)
@@ -404,6 +401,8 @@ def _main_items(session: Session) -> list[ui.MenuItem]:
         index_item = ui.MenuItem("index", tr("menu_resume"), tr("menu_resume_hint"))
     else:
         index_item = ui.MenuItem("index", tr("menu_index"), tr("menu_index_hint"))
+    cache_root = settings_mod.resolve_cache_root(session.settings)
+    cache_size = format_bytes(settings_mod.cache_total_size(cache_root))
     return [
         ui.MenuItem("source", tr("menu_source"), tr("menu_source_hint")),
         index_item,
@@ -413,12 +412,16 @@ def _main_items(session: Session) -> list[ui.MenuItem]:
             tr("menu_browse_hint"),
             enabled=ready,
         ),
-        ui.MenuItem("status", tr("menu_status"), str(status.get("state", ""))),
+        ui.MenuItem(
+            "status",
+            tr("menu_status"),
+            tr("menu_status_hint", state=str(status.get("state", "-"))),
+        ),
         ui.MenuItem("_gap1", "", separator=True),
-        ui.MenuItem("_gap2", "", separator=True),
+        ui.MenuItem("cache", tr("menu_cache"), tr("menu_cache_hint", size=cache_size)),
         ui.MenuItem("settings", tr("menu_settings"), tr("menu_settings_hint")),
-        ui.MenuItem("_gap3", "", separator=True),
-        ui.MenuItem("quit", tr("menu_quit")),
+        ui.MenuItem("_gap2", "", separator=True),
+        ui.MenuItem("quit", tr("menu_quit"), tr("menu_quit_hint")),
     ]
 
 
@@ -434,23 +437,29 @@ def _index_value_color(status: dict) -> int:
     return ui.C_MUTED
 
 
+def _short_path(path: Path) -> str:
+    text = str(path)
+    home = str(Path.home())
+    if text.startswith(home):
+        return "~" + text[len(home) :]
+    return text
+
+
 def _header_panel(session: Session) -> ui.HeaderPanel:
     tr = i18n_mod.get_i18n().t
     exists = session.source.is_file()
-    size = format_bytes(session.source.stat().st_size) if exists else "-"
+    unset = tr("value_unset")
+    size = format_bytes(session.source.stat().st_size) if exists else unset
     status = (
         index_status(session.source, session.work_dir, session.settings.language)
         if exists
-        else {"state": "-", "detail": tr("source_missing"), "ready": False}
+        else {"state": unset, "detail": tr("source_none"), "ready": False}
     )
-    source_name = session.source.name if exists else str(session.source)
-
-    def short(path: Path) -> str:
-        text = str(path)
-        home = str(Path.home())
-        if text.startswith(home):
-            return "~" + text[len(home) :]
-        return text
+    source_name = session.source.name if exists else unset
+    work_text = _short_path(session.work_dir) if exists else unset
+    export_text = _short_path(session.output_dir) if exists else unset
+    cache_root = settings_mod.resolve_cache_root(session.settings)
+    cache_text = format_bytes(settings_mod.cache_total_size(cache_root))
 
     index_text = f"{status['state']}  ·  {status['detail']}"
     return ui.HeaderPanel(
@@ -459,11 +468,122 @@ def _header_panel(session: Session) -> ui.HeaderPanel:
             (tr("label_file"), source_name),
             (tr("label_size"), size),
             (tr("label_index"), index_text, _index_value_color(status)),
-            (tr("label_work"), short(session.work_dir)),
-            (tr("label_export"), short(session.output_dir)),
+            (tr("label_work"), work_text),
+            (tr("label_export"), export_text),
+            (tr("label_cache"), cache_text),
         ],
         note=session.message,
     )
+
+
+def run_cache_manager(screen, session: Session) -> None:
+    """Browse index caches and delete selected or all entries."""
+    import shutil
+
+    tr = i18n_mod.get_i18n().t
+    root = settings_mod.resolve_cache_root(session.settings)
+    cursor = 0
+    while True:
+        entries = settings_mod.list_cache_entries(root)
+        total = format_bytes(settings_mod.cache_total_size(root))
+        items: list[ui.MenuItem] = []
+        for index, entry in enumerate(entries):
+            hint = tr(
+                "cache_entry_hint",
+                size=format_bytes(entry.size_bytes),
+                created=entry.created_label,
+            )
+            items.append(ui.MenuItem(f"entry:{index}", entry.label, hint))
+        if entries:
+            items.append(ui.MenuItem("_gap", "", separator=True))
+            items.append(
+                ui.MenuItem(
+                    "delete_all",
+                    tr("cache_delete_all"),
+                    (
+                        tr("cache_delete_all_hint_one")
+                        if len(entries) == 1
+                        else tr("cache_delete_all_hint", n=len(entries))
+                    ),
+                )
+            )
+        items.append(ui.MenuItem("_gap_back", "", separator=True))
+        items.append(ui.MenuItem("back", tr("settings_back")))
+        choice = ui.list_menu(
+            screen,
+            tr("cache_title"),
+            items,
+            subtitle_lines=[
+                tr("cache_root_line", path=_short_path(root)),
+                tr("cache_total_line", size=total),
+            ],
+            cursor=cursor,
+            status=tr("nav_footer"),
+            hint_mode="aligned",
+        )
+        if choice is None or choice == "back":
+            return
+        for index, item in enumerate(items):
+            if item.key == choice:
+                cursor = index
+                break
+        if choice == "delete_all":
+            if not entries:
+                continue
+            question = tr(
+                "cache_confirm_delete_all",
+                n=len(entries),
+                size=total,
+            )
+            if not ui.confirm(screen, tr("cache_delete_title"), question, default_no=True):
+                session.message = tr("cancelled")
+                continue
+            removed = 0
+            for entry in entries:
+                try:
+                    shutil.rmtree(entry.path)
+                    removed += 1
+                except OSError as error:
+                    ui.show_lines(screen, tr("error"), [str(error)])
+            session.message = tr("cache_deleted_n", n=removed)
+            session.refresh_paths()
+            cursor = 0
+            continue
+        if choice.startswith("entry:"):
+            try:
+                entry_index = int(choice.split(":", 1)[1])
+            except ValueError:
+                continue
+            if entry_index < 0 or entry_index >= len(entries):
+                continue
+            entry = entries[entry_index]
+            detail_lines = [
+                entry.label,
+                "",
+                tr("cache_detail_size", size=format_bytes(entry.size_bytes)),
+                tr("cache_detail_created", created=entry.created_label),
+            ]
+            if entry.source:
+                detail_lines.append(tr("cache_detail_source", path=entry.source))
+            detail_lines.append("")
+            detail_lines.append(tr("cache_confirm_delete_one"))
+            if not ui.confirm(
+                screen,
+                tr("cache_delete_title"),
+                "\n".join(detail_lines),
+                default_no=True,
+            ):
+                session.message = tr("cancelled")
+                continue
+            try:
+                shutil.rmtree(entry.path)
+            except OSError as error:
+                ui.show_lines(screen, tr("error"), [str(error)])
+                continue
+            session.message = tr("cache_deleted_one", name=entry.label)
+            if session.source.is_file() and session.work_dir.resolve() == entry.path.resolve():
+                session.refresh_paths()
+            cursor = 0
 
 
 def _app(screen, session: Session) -> int:
@@ -479,14 +599,14 @@ def _app(screen, session: Session) -> int:
         items = _main_items(session)
         if not session.message:
             ready = any(item.key == "browse" and item.enabled for item in items)
-            preferred = "browse" if ready else "index"
+            preferred = "browse" if ready else ("source" if not session.source.is_file() else "index")
             for index, item in enumerate(items):
                 if item.key == preferred and item.enabled:
                     cursor = index
                     break
             else:
                 for index, item in enumerate(items):
-                    if item.key in {"index", "rebuild"} and item.enabled:
+                    if item.key in {"index", "rebuild", "source"} and item.enabled:
                         cursor = index
                         break
         choice = ui.list_menu(
@@ -496,6 +616,7 @@ def _app(screen, session: Session) -> int:
             panel=_header_panel(session),
             cursor=cursor,
             status=tr("nav_footer_main"),
+            hint_mode="side",
         )
         session.message = ""
         if choice is None or choice == "quit":
@@ -513,6 +634,8 @@ def _app(screen, session: Session) -> int:
             run_browse(screen, session)
         elif choice == "status":
             run_status(screen, session)
+        elif choice == "cache":
+            run_cache_manager(screen, session)
         elif choice == "settings":
             session.settings = setup_mod.edit_settings(screen, session.settings)
             ui.THEME.color = session.settings.color
@@ -534,14 +657,21 @@ def run_menu(
         candidate = Path(settings.last_source).expanduser()
         if candidate.is_file():
             source = candidate
-    resolved_source = source.resolve() if source.exists() else source
+        else:
+            settings.last_source = ""
+            source = Path()
+    elif not source.is_file():
+        source = Path()
+
+    resolved_source = source.resolve() if source.is_file() else source
+    unset_work = settings_mod.default_cache_root()
     session = Session(
         source=resolved_source,
         output_dir=output_dir,
         work_dir=(
             settings_mod.resolve_work_dir(settings, resolved_source)
-            if resolved_source.exists()
-            else Path.home() / ".cache" / "stepsplit" / "unset"
+            if resolved_source.is_file()
+            else unset_work
         ),
         settings=settings,
         project_export=output_dir,
@@ -549,7 +679,7 @@ def run_menu(
     # Always derive the index folder from the active source. A default work_dir
     # from the entry script (tied to DEFAULT_SOURCE) must not stick after
     # last_source points at a different file.
-    if resolved_source.exists():
+    if resolved_source.is_file():
         session.refresh_paths()
     elif work_dir is not None:
         session.work_dir = work_dir

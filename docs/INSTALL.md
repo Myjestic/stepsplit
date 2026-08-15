@@ -66,13 +66,12 @@ After a successful index, reopening the same file is fast. Matching is by
 ~/.cache/stepsplit/<filename>-<size>/
 ```
 
-Delete that folder to force a full re-index, or use force rebuild in the menu.
+Delete that folder to force a full re-index, use force rebuild in the menu, or
+open **Manage cache** to remove selected (or all) cached indexes.
 
 ## Windows notes
 
 - Prefer Windows Terminal or a normal PowerShell/cmd window, not a tiny IDE panel.
-- Run from a real folder on disk when you can. Paths like
-  `\\wsl.localhost\...` can be awkward for interactive terminals.
 - Use `python stepsplit.py` or `py -3 stepsplit.py`.
 - Check pip with `python -m pip --version`.
 - CLI without UI:

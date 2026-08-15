@@ -33,12 +33,6 @@ def run_wizard(screen, settings: settings_mod.Settings) -> settings_mod.Settings
         i18n_mod.set_language(lang)
     tr = i18n_mod.get_i18n().t
 
-    ui.show_lines(
-        screen,
-        tr("wizard_welcome"),
-        [tr("wizard_intro"), "", tr("wizard_saved_to") + f": {settings_mod.settings_path()}"],
-    )
-
     export = ui.list_menu(
         screen,
         tr("wizard_export"),
@@ -104,12 +98,8 @@ def run_wizard(screen, settings: settings_mod.Settings) -> settings_mod.Settings
         ui.THEME.color = False
 
     settings.setup_complete = True
-    path = settings_mod.save_settings(settings)
-    ui.show_lines(
-        screen,
-        tr("wizard_welcome"),
-        [tr("wizard_done"), "", f"{tr('wizard_saved_to')}: {path}"],
-    )
+    settings_mod.save_settings(settings)
+    ui.show_lines(screen, tr("settings_title"), [tr("wizard_done")])
     return settings
 
 
@@ -122,19 +112,30 @@ def edit_settings(screen, settings: settings_mod.Settings) -> settings_mod.Setti
             if settings.numbered_exports
             else tr("settings_numbered_off")
         )
+        export_label = {
+            "beside_source": tr("wizard_export_beside"),
+            "project_export": tr("wizard_export_project"),
+            "custom": tr("wizard_export_custom"),
+        }.get(settings.export_mode, settings.export_mode)
+        work_label = {
+            "cache": tr("wizard_work_cache"),
+            "beside_source": tr("wizard_work_beside"),
+            "custom": tr("wizard_work_custom"),
+        }.get(settings.work_mode, settings.work_mode)
         choice = ui.list_menu(
             screen,
             tr("settings_title"),
             [
                 ui.MenuItem("language", tr("settings_language"), settings.language.upper()),
-                ui.MenuItem("export", tr("settings_export"), settings.export_mode),
-                ui.MenuItem("work", tr("settings_work"), settings.work_mode),
+                ui.MenuItem("export", tr("settings_export"), export_label),
+                ui.MenuItem("work", tr("settings_work"), work_label),
                 ui.MenuItem("numbered", tr("settings_numbered"), numbered_label),
                 ui.MenuItem("color", tr("settings_color"), color_label),
-                ui.MenuItem("show", tr("settings_show")),
                 ui.MenuItem("wizard", tr("settings_rerun")),
+                ui.MenuItem("_gap", "", separator=True),
                 ui.MenuItem("back", tr("settings_back")),
             ],
+            hint_mode="aligned",
         )
         if choice in {None, "back"}:
             settings_mod.save_settings(settings)
@@ -202,23 +203,6 @@ def edit_settings(screen, settings: settings_mod.Settings) -> settings_mod.Setti
         elif choice == "color":
             settings.color = not settings.color
             ui.THEME.color = settings.color
-        elif choice == "show":
-            ui.show_lines(
-                screen,
-                tr("settings_title"),
-                [
-                    f"language          = {settings.language}",
-                    f"color             = {settings.color}",
-                    f"export_mode       = {settings.export_mode}",
-                    f"export_dir        = {settings.export_dir or '-'}",
-                    f"work_mode         = {settings.work_mode}",
-                    f"work_dir          = {settings.work_dir or '-'}",
-                    f"numbered_exports  = {settings.numbered_exports}",
-                    f"last_source       = {settings.last_source or '-'}",
-                    "",
-                    f"{tr('wizard_saved_to')}: {settings_mod.settings_path()}",
-                ],
-            )
         elif choice == "wizard":
             settings = run_wizard(screen, settings)
             tr = i18n_mod.get_i18n().t

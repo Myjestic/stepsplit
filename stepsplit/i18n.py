@@ -37,49 +37,202 @@ STRINGS: dict[str, dict[str, str]] = {
     "no_hint": {"de": "abbrechen", "en": "cancel"},
     "menu_source": {"de": "Quelldatei wählen", "en": "Choose source file"},
     "menu_source_hint": {
-        "de": "STEP-Datei und Index-Ordner",
-        "en": "STEP file and index folder",
+        "de": (
+            "Wähle die STEP-Datei (.stp / .step), die du aufteilen möchtest.\n"
+            "Der Index-Ordner wird daraus abgeleitet und bleibt unverändert "
+            "an der Quelldatei."
+        ),
+        "en": (
+            "Pick the STEP file (.stp / .step) you want to split.\n"
+            "The index folder is derived from that file. The source itself "
+            "is never modified."
+        ),
     },
     "menu_index": {"de": "Index erstellen", "en": "Build index"},
     "menu_index_hint": {
-        "de": "Struktur scannen oder fortsetzen",
-        "en": "Scan structure / resume",
+        "de": (
+            "Liest die Baugruppen-Struktur ein und speichert Entity-Positionen "
+            "im Cache.\n"
+            "Kann bei großen Dateien länger dauern. Mit Ctrl+C abbrechen und "
+            "später fortsetzen."
+        ),
+        "en": (
+            "Reads the assembly structure and stores entity positions in the cache.\n"
+            "Large files can take a while. Interrupt with Ctrl+C and resume later."
+        ),
     },
     "menu_resume": {"de": "Index fortsetzen", "en": "Resume index"},
     "menu_resume_hint": {
-        "de": "Unterbrochenen Aufbau fortsetzen",
-        "en": "continue the interrupted build",
+        "de": (
+            "Setzt einen unterbrochenen Indexaufbau an der letzten Position fort.\n"
+            "Bereits gelesene Daten bleiben erhalten."
+        ),
+        "en": (
+            "Continues an interrupted index build from the last saved position.\n"
+            "Data already scanned is kept."
+        ),
     },
     "menu_browse": {"de": "Strukturbaum öffnen", "en": "Open structure tree"},
     "menu_browse_hint": {
-        "de": "Knoten markieren und exportieren",
-        "en": "Mark nodes and export",
+        "de": (
+            "Öffnet den Strukturbaum der Baugruppe.\n"
+            "Teile und Unterbaugruppen können ausgewählt und als eigene "
+            "STEP-Dateien exportiert werden."
+        ),
+        "en": (
+            "Opens the assembly structure tree.\n"
+            "Parts and sub-assemblies can be selected and exported as "
+            "separate STEP files."
+        ),
     },
     "menu_status": {"de": "Status / Prüfung", "en": "Status / validate"},
+    "menu_status_hint": {
+        "de": (
+            "Zeigt den Index-Status und prüft Baugruppen-Verknüpfungen.\n"
+            "\n"
+            "Aktuell: {state}"
+        ),
+        "en": (
+            "Shows index status and checks assembly relationships.\n"
+            "\n"
+            "Current: {state}"
+        ),
+    },
+    "menu_cache": {"de": "Cache verwalten", "en": "Manage cache"},
+    "menu_cache_hint": {
+        "de": (
+            "Übersicht der gespeicherten Indexes mit Größe und Erstelldatum.\n"
+            "Einträge einzeln oder komplett löschen.\n"
+            "\n"
+            "Belegt: {size}"
+        ),
+        "en": (
+            "List cached indexes with size and creation time.\n"
+            "Delete individual entries or the whole cache.\n"
+            "\n"
+            "Used: {size}"
+        ),
+    },
     "menu_settings": {"de": "Einstellungen", "en": "Settings"},
     "menu_settings_hint": {
-        "de": "Sprache, Export, Farben…",
-        "en": "Language, export, colors…",
+        "de": (
+            "Sprache, Export- und Index-Ordner, Farben und Nummern-Präfix ändern.\n"
+            "Die Ersteinrichtung kann von hier erneut gestartet werden."
+        ),
+        "en": (
+            "Change language, export and index folders, colors, and number prefixes.\n"
+            "You can also re-run the first-time setup from here."
+        ),
     },
     "menu_rebuild": {"de": "Index neu aufbauen", "en": "Rebuild index"},
     "menu_rebuild_hint": {
-        "de": "Löscht den bisherigen Index",
-        "en": "deletes the current index",
+        "de": (
+            "Löscht den bestehenden Index und liest die Datei komplett neu ein.\n"
+            "Nötig, wenn sich die Quelldatei geändert hat. Je nach Größe kann "
+            "das länger dauern."
+        ),
+        "en": (
+            "Deletes the existing index and rescans the whole file.\n"
+            "Needed when the source file changed. This can take a while depending "
+            "on file size."
+        ),
     },
     "menu_quit": {"de": "Beenden", "en": "Quit"},
+    "menu_quit_hint": {
+        "de": "Speichert die Einstellungen und beendet StepSplit.",
+        "en": "Saves settings and exits StepSplit.",
+    },
     "label_file": {"de": "Datei", "en": "File"},
     "label_size": {"de": "Größe", "en": "Size"},
     "label_index": {"de": "Index", "en": "Index"},
     "label_work": {"de": "Index-Ordner", "en": "Index folder"},
     "label_export": {"de": "Export", "en": "Export"},
+    "label_cache": {"de": "Cache", "en": "Cache"},
     "label_offsets": {"de": "Direktzugriff", "en": "Random access"},
     "label_settings": {"de": "Einstellungen", "en": "Settings"},
+    "value_unset": {"de": "-", "en": "-"},
+    "source_none": {
+        "de": "Keine Datei ausgewählt",
+        "en": "No file selected",
+    },
+    "cache_title": {"de": "Index-Cache", "en": "Index cache"},
+    "cache_root_line": {
+        "de": "Ordner: {path}",
+        "en": "Folder: {path}",
+    },
+    "cache_total_line": {
+        "de": "Belegt: {size}",
+        "en": "Used: {size}",
+    },
+    "cache_entry_hint": {
+        "de": "{size}  ·  {created}",
+        "en": "{size}  ·  {created}",
+    },
+    "cache_delete_all": {
+        "de": "Gesamten Cache löschen",
+        "en": "Delete entire cache",
+    },
+    "cache_delete_all_hint": {
+        "de": "{n} Einträge löschen",
+        "en": "remove {n} entries",
+    },
+    "cache_delete_all_hint_one": {
+        "de": "1 Eintrag löschen",
+        "en": "remove 1 entry",
+    },
+    "cache_delete_title": {"de": "Cache löschen", "en": "Delete cache"},
+    "cache_confirm_delete_one": {
+        "de": (
+            "Diesen Cache-Eintrag wirklich löschen?\n"
+            "Beim nächsten Öffnen der Baugruppe muss der Index neu erstellt werden."
+        ),
+        "en": (
+            "Delete this cache entry?\n"
+            "The assembly will need to be re-indexed the next time you open it."
+        ),
+    },
+    "cache_confirm_delete_all": {
+        "de": (
+            "{n} Cache-Einträge löschen ({size})?\n"
+            "Danach muss jede betroffene Baugruppe neu indexiert werden, "
+            "wenn sie wieder benötigt wird."
+        ),
+        "en": (
+            "Delete {n} cache entries ({size})?\n"
+            "Each affected assembly will need to be re-indexed when you need it again."
+        ),
+    },
+    "cache_detail_size": {"de": "Größe: {size}", "en": "Size: {size}"},
+    "cache_detail_created": {
+        "de": "Erstellt: {created}",
+        "en": "Created: {created}",
+    },
+    "cache_detail_source": {
+        "de": "Quelle: {path}",
+        "en": "Source: {path}",
+    },
+    "cache_deleted_one": {
+        "de": "Cache gelöscht: {name}",
+        "en": "Cache deleted: {name}",
+    },
+    "cache_deleted_n": {
+        "de": "{n} Cache-Einträge gelöscht",
+        "en": "Deleted {n} cache entries",
+    },
     "label_yes": {"de": "ja", "en": "yes"},
     "label_no": {"de": "nein", "en": "no"},
     "confirm_ok": {"de": "Fortfahren?", "en": "Continue?"},
     "confirm_index": {
-        "de": "{name}  ({size})\n\nIndex jetzt erstellen?",
-        "en": "{name}  ({size})\n\nBuild the index now?",
+        "de": (
+            "{name}  ({size})\n\n"
+            "Index jetzt erstellen?\n"
+            "Je nach Dateigröße kann das länger dauern."
+        ),
+        "en": (
+            "{name}  ({size})\n\n"
+            "Build the index now?\n"
+            "This can take a while depending on file size."
+        ),
     },
     "confirm_rebuild": {
         "de": (
@@ -229,8 +382,12 @@ STRINGS: dict[str, dict[str, str]] = {
         "en": "{n} product definitions indexed.",
     },
     "val_no_usages": {
-        "de": "Keine Baugruppen-Verknüpfungen gefunden. Möglicherweise ein nicht unterstützter Usage-Typ. Vor dem Export den Parser anpassen.",
-        "en": "No assembly usages were indexed. Unrecognised usage entity: adapt the parser before export.",
+        "de": "Keine Baugruppen-Verknüpfungen — die Datei enthält keine Unterbaugruppen (einzelnes Teil oder flache Struktur).",
+        "en": "No assembly links — the file has no subassemblies (single part or flat structure).",
+    },
+    "val_no_usages_multi": {
+        "de": "Keine Baugruppen-Verknüpfungen trotz mehrerer Bauteile. Oft eine flache Datei ohne Hierarchie; falls Unterbaugruppen erwartet werden, ggf. Usage-Typ prüfen.",
+        "en": "No assembly links despite multiple parts. Often a flat file without hierarchy; if subassemblies were expected, check the usage entity type.",
     },
     "val_n_usages": {
         "de": "{n} Baugruppen-Verknüpfungen indexiert.",
@@ -302,10 +459,6 @@ STRINGS: dict[str, dict[str, str]] = {
         "de": "Willkommen zur Ersteinrichtung",
         "en": "Welcome to first-time setup",
     },
-    "wizard_intro": {
-        "de": "Ein paar Einstellungen, dann geht’s los. Alles lässt sich später ändern.",
-        "en": "A few settings, then you’re ready. Everything can be changed later.",
-    },
     "wizard_language": {"de": "Sprache / Language", "en": "Language / Sprache"},
     "wizard_lang_de": {"de": "Deutsch", "en": "German"},
     "wizard_lang_en": {"de": "Englisch", "en": "English"},
@@ -347,10 +500,9 @@ STRINGS: dict[str, dict[str, str]] = {
     "wizard_color_on": {"de": "Farbe an", "en": "Color on"},
     "wizard_color_off": {"de": "Ohne Farbe", "en": "No color"},
     "wizard_done": {
-        "de": "Einstellungen gespeichert. Los geht's!",
-        "en": "Settings saved. You’re good to go!",
+        "de": "Einstellungen gespeichert.",
+        "en": "Settings saved.",
     },
-    "wizard_saved_to": {"de": "Gespeichert unter", "en": "Saved to"},
     "settings_title": {"de": "Einstellungen", "en": "Settings"},
     "settings_language": {"de": "Sprache ändern", "en": "Change language"},
     "settings_export": {"de": "Export-Verzeichnis", "en": "Export folder"},
@@ -366,13 +518,12 @@ STRINGS: dict[str, dict[str, str]] = {
     },
     "settings_numbered_off": {"de": "aus", "en": "off"},
     "settings_rerun": {
-        "de": "Ersteinrichtung erneut",
+        "de": "Ersteinrichtung erneut starten",
         "en": "Run setup wizard again",
     },
-    "settings_show": {"de": "Aktuelle Werte anzeigen", "en": "Show current values"},
     "settings_back": {"de": "Zurück", "en": "Back"},
-    "color_on": {"de": "Farbe: an", "en": "Color: on"},
-    "color_off": {"de": "Farbe: aus", "en": "Color: off"},
+    "color_on": {"de": "an", "en": "on"},
+    "color_off": {"de": "aus", "en": "off"},
     "source_title": {"de": "Quelldatei wählen", "en": "Choose source file"},
     "source_prompt": {"de": "Pfad zur STEP-Datei:", "en": "Path to the STEP file:"},
     "source_missing": {"de": "Datei nicht gefunden", "en": "File not found"},

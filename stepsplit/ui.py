@@ -81,6 +81,22 @@ def safe_add(screen, y: int, x: int, text: str, width: int, attr: int = 0) -> No
         pass
 
 
+def _put(screen, y: int, x: int, text: str, attr: int = 0) -> None:
+    """Write ``text`` at (y, x) without padding beyond the string itself."""
+    if y < 0 or x < 0 or not text:
+        return
+    try:
+        height, width = screen.getmaxyx()
+        if y >= height or x >= width:
+            return
+        room = width - x
+        if room <= 0:
+            return
+        screen.addnstr(y, x, text, min(len(text), room), attr)
+    except curses.error:
+        pass
+
+
 @dataclass
 class MenuItem:
     key: str
@@ -101,29 +117,39 @@ class HeaderPanel:
 
 
 def _draw_header_panel(screen, start_line: int, width: int, panel: HeaderPanel) -> int:
-    """Draw a framed status card; return the next free line index."""
-    line = start_line
-    inner = width - 6
-    if inner < 20:
-        return line
+    """Draw a framed status card; return the next free line index.
 
-    def paint(text: str = "", attr: int = 0) -> None:
+    Borders always use the title color so they stay consistent even when the
+    row content uses accent / warn / ok attributes.
+    """
+    line = start_line
+    # Leave one column free at the right edge (curses often rejects writes there).
+    box_left = 2
+    box_width = width - box_left - 1
+    if box_width < 24:
+        return line
+    inner = box_width - 4  # "│ " + content + " │"
+    border = THEME.attr(C_TITLE)
+
+    def row_frame(content: str = "", content_attr: int = 0) -> None:
         nonlocal line
-        content = f" │ {text[:inner].ljust(inner)} │"
-        safe_add(screen, line, 2, content, width - 3, attr)
+        clipped = content[:inner].ljust(inner)
+        _put(screen, line, box_left, "│ ", border)
+        _put(screen, line, box_left + 2, clipped, content_attr)
+        _put(screen, line, box_left + 2 + inner, " │", border)
         line += 1
 
-    top = " ┌" + "─" * (inner + 2) + "┐"
-    bot = " └" + "─" * (inner + 2) + "┘"
-    safe_add(screen, line, 2, top, width - 3, THEME.attr(C_TITLE))
+    top = "┌" + "─" * (inner + 2) + "┐"
+    bot = "└" + "─" * (inner + 2) + "┘"
+    _put(screen, line, box_left, top, border)
     line += 1
 
     if panel.eyebrow:
-        paint(panel.eyebrow, THEME.attr(C_ACCENT, curses.A_BOLD))
-        paint("", THEME.attr(C_TITLE))
+        row_frame(panel.eyebrow, THEME.attr(C_ACCENT, curses.A_BOLD))
+        row_frame("", border)
 
     label_width = min(
-        12,
+        14,
         max((len(row[0]) for row in panel.rows), default=6),
     )
     for row in panel.rows:
@@ -131,27 +157,81 @@ def _draw_header_panel(screen, start_line: int, width: int, panel: HeaderPanel) 
         value = row[1]
         value_pair = row[2] if len(row) > 2 else C_MUTED
         label_text = label[:label_width].ljust(label_width)
-        room = max(inner - label_width - 2, 8)
+        room = max(inner - label_width - 3, 8)
         value_text = value if len(value) <= room else "…" + value[-(room - 1) :]
-        paint(f"{label_text}  {value_text}", THEME.attr(value_pair))
-        try:
-            screen.addnstr(
-                line - 1,
-                5,
-                label_text,
-                label_width,
-                THEME.attr(C_ACCENT, curses.A_BOLD),
-            )
-        except curses.error:
-            pass
+        # Draw the full content line first (muted value color), then recolor label.
+        row_frame(f"{label_text} : {value_text}", THEME.attr(value_pair))
+        _put(
+            screen,
+            line - 1,
+            box_left + 2,
+            label_text,
+            THEME.attr(C_ACCENT, curses.A_BOLD),
+        )
 
     if panel.note:
-        paint("", THEME.attr(C_TITLE))
-        paint(panel.note, THEME.attr(C_OK))
+        row_frame("", border)
+        row_frame(panel.note, THEME.attr(C_OK))
 
-    safe_add(screen, line, 2, bot, width - 3, THEME.attr(C_TITLE))
-    line += 2
+    _put(screen, line, box_left, bot, border)
+    line += 1
     return line
+
+
+def _wrap_words(text: str, width: int) -> list[str]:
+    """Wrap ``text`` to ``width`` columns without breaking words when possible."""
+    if width < 1:
+        return [""]
+    if not text:
+        return [""]
+    words = text.split()
+    if not words:
+        return [""]
+    lines: list[str] = []
+    current = words[0]
+    for word in words[1:]:
+        candidate = f"{current} {word}"
+        if len(candidate) <= width:
+            current = candidate
+        else:
+            lines.append(current)
+            current = word
+    lines.append(current)
+    return lines
+
+
+def _draw_side_hint(
+    screen,
+    top: int,
+    left: int,
+    box_width: int,
+    height: int,
+    text: str,
+) -> None:
+    """Draw a framed help box to the right of the menu."""
+    if box_width < 8 or height < 3:
+        return
+    inner = box_width - 4
+    raw_lines: list[str] = []
+    if text.strip():
+        for paragraph in text.splitlines() or [text]:
+            raw_lines.extend(_wrap_words(paragraph, inner))
+    max_rows = height - 2
+    visible = raw_lines[:max_rows]
+    while len(visible) < max_rows:
+        visible.append("")
+
+    border = THEME.attr(C_TITLE)
+    content_attr = THEME.attr(C_MUTED)
+    top_border = "┌" + "─" * (box_width - 2) + "┐"
+    bot_border = "└" + "─" * (box_width - 2) + "┘"
+    _put(screen, top, left, top_border, border)
+    for row, line in enumerate(visible):
+        y = top + 1 + row
+        _put(screen, y, left, "│ ", border)
+        _put(screen, y, left + 2, line.ljust(inner)[:inner], content_attr)
+        _put(screen, y, left + 2 + inner, " │", border)
+    _put(screen, top + 1 + max_rows, left, bot_border, border)
 
 
 def list_menu(
@@ -162,8 +242,15 @@ def list_menu(
     subtitle_lines: Sequence[str] = (),
     panel: HeaderPanel | None = None,
     cursor: int = 0,
+    hint_mode: str = "inline",
 ) -> str | None:
-    """Arrow-key menu. Returns the selected item key, or ``None`` if cancelled."""
+    """Arrow-key menu. Returns the selected item key, or ``None`` if cancelled.
+
+    ``hint_mode``:
+    - ``inline``: append hint after the label with a middle dot
+    - ``aligned``: ``label : value`` with values left-aligned in a column
+    - ``side``: show only the label; put the current hint in a box on the right
+    """
     THEME.init(screen)
     tr = i18n_mod.get_i18n().t
     enabled = [i for i, item in enumerate(items) if item.enabled and not item.separator]
@@ -171,6 +258,8 @@ def list_menu(
         return None
     if cursor not in enabled:
         cursor = enabled[0]
+
+    label_width = max((len(item.label) for item in items if not item.separator), default=0)
 
     while True:
         screen.erase()
@@ -193,18 +282,27 @@ def list_menu(
         if cursor - first >= body_height:
             first = cursor - body_height + 1
 
+        side_box_width = 0
+        menu_width = width - 2
+        if hint_mode == "side" and width >= 48:
+            side_box_width = min(42, max(26, width // 2 - 4))
+            menu_width = max(18, width - side_box_width - 5)
+
         for row in range(body_height):
             index = first + row
             if index >= len(items):
                 break
             item = items[index]
             if item.separator:
-                safe_add(screen, body_top + row, 1, "", width - 2)
+                safe_add(screen, body_top + row, 1, "", menu_width)
                 continue
             marker = "▸" if index == cursor else " "
-            label = item.label
-            if item.hint:
-                label = f"{label}  ·  {item.hint}"
+            if hint_mode == "aligned" and item.hint:
+                label = f"{item.label.ljust(label_width)} : {item.hint}"
+            elif hint_mode == "inline" and item.hint:
+                label = f"{item.label}  ·  {item.hint}"
+            else:
+                label = item.label
             text = f" {marker} {label}"
             if index == cursor and item.enabled:
                 attr = THEME.attr(C_SELECT, curses.A_BOLD)
@@ -212,7 +310,19 @@ def list_menu(
                 attr = THEME.attr(C_MUTED, curses.A_DIM)
             else:
                 attr = curses.A_NORMAL
-            safe_add(screen, body_top + row, 1, text, width - 2, attr)
+            safe_add(screen, body_top + row, 1, text, menu_width, attr)
+
+        if hint_mode == "side" and side_box_width:
+            hint = items[cursor].hint if not items[cursor].separator else ""
+            if hint.strip():
+                _draw_side_hint(
+                    screen,
+                    body_top,
+                    width - side_box_width - 1,
+                    side_box_width,
+                    body_height,
+                    hint,
+                )
 
         footer = status or tr("nav_footer")
         safe_add(screen, height - 1, 0, f" {footer}", width - 1, THEME.attr(C_FOOTER))
@@ -292,6 +402,15 @@ def _common_prefix(items: Sequence[str]) -> str:
     return prefix
 
 
+def _wrap_chars(text: str, width: int) -> list[str]:
+    """Hard-wrap ``text`` by character columns (for paths without spaces)."""
+    if width < 1:
+        return [text]
+    if not text:
+        return [""]
+    return [text[index : index + width] for index in range(0, len(text), width)]
+
+
 def prompt_text(
     screen,
     title: str,
@@ -301,7 +420,7 @@ def prompt_text(
     path_complete: bool = False,
     step_files_only: bool = False,
 ) -> str | None:
-    """Single-line text prompt. Returns ``None`` if cancelled with Esc."""
+    """Text prompt with wrapped input. Returns ``None`` if cancelled with Esc."""
     THEME.init(screen)
     tr = i18n_mod.get_i18n().t
     curses.curs_set(1)
@@ -312,9 +431,22 @@ def prompt_text(
         height, width = screen.getmaxyx()
         safe_add(screen, 0, 0, f" {title}", width - 1, THEME.attr(C_HEADER, curses.A_BOLD))
         safe_add(screen, 2, 2, label, width - 3, THEME.attr(C_TITLE))
-        safe_add(screen, 4, 2, "❯ " + value, width - 4, THEME.attr(C_ACCENT, curses.A_BOLD))
 
-        list_top = 6
+        line_width = max(width - 4, 8)
+        display = "❯ " + value
+        wrapped = _wrap_chars(display, line_width)
+        input_top = 4
+        for row, chunk in enumerate(wrapped):
+            safe_add(
+                screen,
+                input_top + row,
+                2,
+                chunk,
+                line_width,
+                THEME.attr(C_ACCENT, curses.A_BOLD),
+            )
+
+        list_top = input_top + len(wrapped) + 1
         if listings:
             max_rows = max(height - list_top - 2, 0)
             shown = listings[:max_rows]
@@ -356,7 +488,17 @@ def prompt_text(
             width - 1,
             THEME.attr(C_FOOTER),
         )
-        screen.move(4, min(4 + len(value), width - 2))
+        cursor_index = len(display)
+        cursor_row = input_top + (cursor_index // line_width)
+        cursor_col = 2 + (cursor_index % line_width)
+        # When the cursor sits exactly on a wrap boundary, place it on the next line.
+        if cursor_index > 0 and cursor_index % line_width == 0:
+            cursor_row = input_top + (cursor_index // line_width)
+            cursor_col = 2
+        try:
+            screen.move(min(cursor_row, height - 2), min(cursor_col, width - 2))
+        except curses.error:
+            pass
         screen.refresh()
 
         key = screen.getch()
@@ -462,8 +604,7 @@ def show_status(
         screen.erase()
         height, width = screen.getmaxyx()
         safe_add(screen, 0, 0, f" {title}", width - 1, THEME.attr(C_HEADER, curses.A_BOLD))
-        line = _draw_header_panel(screen, 2, width, panel)
-        line += 1
+        line = _draw_header_panel(screen, 1, width, panel)
         body = max(height - line - 1, 1)
         for row in range(body):
             index = top + row

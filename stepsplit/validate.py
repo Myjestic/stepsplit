@@ -78,7 +78,11 @@ def validate_structure(connection: sqlite3.Connection) -> Report:
         )
 
     if stats["usages"] == 0:
-        report.add(ERROR, tr("val_no_usages"))
+        # Zero links usually means a single part or a flat STEP — not a parser failure.
+        if stats["products"] > 1:
+            report.add(WARNING, tr("val_no_usages_multi"))
+        else:
+            report.add(INFO, tr("val_no_usages"))
     else:
         report.add(INFO, tr("val_n_usages", n=_fmt_int(stats["usages"])))
 
@@ -88,25 +92,26 @@ def validate_structure(connection: sqlite3.Connection) -> Report:
     if fallbacks:
         report.add(WARNING, tr("val_fallback_usages", n=_fmt_int(fallbacks)))
 
-    dangling_parents = connection.execute(
-        "SELECT COUNT(*) FROM usages u WHERE NOT EXISTS "
-        "(SELECT 1 FROM product_definitions pd WHERE pd.pd_id = u.parent_pd)"
-    ).fetchone()[0]
-    dangling_children = connection.execute(
-        "SELECT COUNT(*) FROM usages u WHERE NOT EXISTS "
-        "(SELECT 1 FROM product_definitions pd WHERE pd.pd_id = u.child_pd)"
-    ).fetchone()[0]
-    if dangling_parents or dangling_children:
-        report.add(
-            ERROR,
-            tr(
-                "val_dangling_usages",
-                parents=_fmt_int(dangling_parents),
-                children=_fmt_int(dangling_children),
-            ),
-        )
-    else:
-        report.add(INFO, tr("val_usages_ok"))
+    if stats["usages"] > 0:
+        dangling_parents = connection.execute(
+            "SELECT COUNT(*) FROM usages u WHERE NOT EXISTS "
+            "(SELECT 1 FROM product_definitions pd WHERE pd.pd_id = u.parent_pd)"
+        ).fetchone()[0]
+        dangling_children = connection.execute(
+            "SELECT COUNT(*) FROM usages u WHERE NOT EXISTS "
+            "(SELECT 1 FROM product_definitions pd WHERE pd.pd_id = u.child_pd)"
+        ).fetchone()[0]
+        if dangling_parents or dangling_children:
+            report.add(
+                ERROR,
+                tr(
+                    "val_dangling_usages",
+                    parents=_fmt_int(dangling_parents),
+                    children=_fmt_int(dangling_children),
+                ),
+            )
+        else:
+            report.add(INFO, tr("val_usages_ok"))
 
     unnamed = connection.execute(
         """
