@@ -1,17 +1,16 @@
 # StepSplit
 
-Split large STEP assemblies into smaller files without opening them in CAD.
+**Open-source Python tool to split large STEP/STP assemblies (AP214 / AP242)
+into smaller files without loading them into CAD or RAM.**
 
-Multi-gigabyte STEP files (for example a 13 GB truck with thousands of parts)
-often overwhelm workstations and lighter tools such as Autodesk Fusion 360.
-Loading the whole model into RAM and rendering it can fail or become unusable.
+Trying to open a multi-gigabyte STEP file (10 GB+) and Fusion 360, FreeCAD, or
+another viewer freezes or runs out of memory? Exporting part by part from a
+full CAD system often hits the same wall.
 
-Exporting part by part from a full CAD system usually hits the same wall.
-
-StepSplit reads the STEP text sequentially, keeps entity locations on disk,
-and stores the assembly structure in SQLite. You browse the tree, pick what
-you need, and export each selection as its own STEP file with B-Rep geometry
-intact. The full model never has to sit in memory.
+StepSplit reads the STEP text sequentially, indexes the assembly structure in
+SQLite, and leaves heavy B-Rep geometry on disk. Browse the tree in the
+terminal, select sub-assemblies or parts, and batch-export standalone `.step`
+files—without loading the whole model into memory.
 
 | | |
 |---|---|
@@ -54,11 +53,18 @@ cd stepsplit
 python3 stepsplit.py
 ```
 
+Or install and run the `stepsplit` command:
+
+```bash
+python3 -m pip install "git+https://github.com/Myjestic/stepsplit.git"
+stepsplit
+```
+
 On Windows, the first menu start may ask to install `windows-curses`. Answer `Y`,
-or install it yourself:
+or install with UI support:
 
 ```bat
-python -m pip install windows-curses
+python -m pip install "git+https://github.com/Myjestic/stepsplit.git[windows]"
 ```
 
 CLI-only commands (`index`, `tree`, `export`, `check`) work without that package.

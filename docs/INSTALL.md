@@ -15,9 +15,25 @@ prompt for that on first run.
 
 ## Get the code
 
+Clone and run from the repo:
+
 ```bash
 git clone https://github.com/Myjestic/stepsplit.git
 cd stepsplit
+python3 stepsplit.py
+```
+
+Or install the package (adds the `stepsplit` command):
+
+```bash
+python3 -m pip install "git+https://github.com/Myjestic/stepsplit.git"
+stepsplit
+```
+
+On Windows you can add the UI dependency in one step:
+
+```bat
+python -m pip install "git+https://github.com/Myjestic/stepsplit.git[windows]"
 ```
 
 The repo does not include STEP files. Point StepSplit at your own `.stp` /
@@ -27,6 +43,8 @@ The repo does not include STEP files. Point StepSplit at your own `.stp` /
 
 ```bash
 python3 stepsplit.py
+# or, after pip install:
+stepsplit
 ```
 
 On Windows, if curses is missing you will see something like:

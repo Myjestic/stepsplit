@@ -415,13 +415,14 @@ def main(
     # No arguments → interactive menu (index, tree, export).
     try:
         if not argv:
-            if default_source is None:
-                build_parser(default_source, default_output_dir).print_help()
-                return 1
             ensure_curses(prompt=True)
             from . import menu as menu_module
 
-            return menu_module.run_menu(default_source, default_output_dir, default_work_dir)
+            return menu_module.run_menu(
+                default_source or Path(),
+                default_output_dir,
+                default_work_dir,
+            )
 
         if argv and argv[0] == "menu":
             ensure_curses(prompt=True)

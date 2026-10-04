@@ -1,11 +1,27 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "stepsplit"
 version = "1.0.0"
-description = "Split multi-gigabyte STEP assemblies without loading them into CAD or RAM"
+description = "Split multi-gigabyte STEP/STP assemblies into smaller files without loading them into CAD or RAM"
 readme = "README.md"
 license = { text = "MIT" }
+authors = [{ name = "Myjestic" }]
 requires-python = ">=3.10"
-keywords = ["step", "cad", "assembly", "ap214", "splitter"]
+keywords = [
+    "step",
+    "stp",
+    "cad",
+    "assembly",
+    "ap214",
+    "ap242",
+    "splitter",
+    "fusion360",
+    "freecad",
+    "brep",
+]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
@@ -21,6 +37,15 @@ classifiers = [
 
 [project.optional-dependencies]
 windows = ["windows-curses"]
+
+[project.urls]
+Homepage = "https://github.com/Myjestic/stepsplit"
+Repository = "https://github.com/Myjestic/stepsplit"
+Issues = "https://github.com/Myjestic/stepsplit/issues"
+Changelog = "https://github.com/Myjestic/stepsplit/releases"
+
+[project.scripts]
+stepsplit = "stepsplit.__main__:main"
 
 [tool.setuptools.packages.find]
 include = ["stepsplit*"]
